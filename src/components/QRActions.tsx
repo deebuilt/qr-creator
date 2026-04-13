@@ -45,18 +45,18 @@ export function QRActions({ config, onSave }: Props) {
   };
 
   return (
-    <div className="grid grid-cols-2 gap-2">
-      <Button disabled={disabled} onClick={handlePng} className="min-h-[44px]">
-        <Download className="mr-2 h-4 w-4" /> PNG
+    <div className="flex flex-wrap gap-2">
+      <Button disabled={disabled} onClick={handlePng} size="sm" className="flex-1 h-9 text-xs font-medium rounded-full">
+        <Download className="mr-1.5 h-3.5 w-3.5" /> Download PNG
       </Button>
-      <Button disabled={disabled} onClick={handleSvg} variant="outline" className="min-h-[44px]">
-        <Download className="mr-2 h-4 w-4" /> SVG
+      <Button disabled={disabled} onClick={handleSvg} variant="outline" size="sm" className="flex-1 h-9 text-xs font-medium rounded-full">
+        <Download className="mr-1.5 h-3.5 w-3.5" /> SVG
       </Button>
-      <Button disabled={disabled} onClick={handleCopy} variant="outline" className="min-h-[44px]">
-        <Copy className="mr-2 h-4 w-4" /> Copy
+      <Button disabled={disabled} onClick={handleCopy} variant="outline" size="sm" className="flex-1 h-9 text-xs font-medium rounded-full">
+        <Copy className="mr-1.5 h-3.5 w-3.5" /> Copy
       </Button>
-      <Button disabled={disabled} onClick={handleSave} variant="secondary" className="min-h-[44px]">
-        <BookmarkPlus className="mr-2 h-4 w-4" /> Save
+      <Button disabled={disabled} onClick={handleSave} variant="secondary" size="sm" className="flex-1 h-9 text-xs font-medium rounded-full">
+        <BookmarkPlus className="mr-1.5 h-3.5 w-3.5" /> Save
       </Button>
     </div>
   );

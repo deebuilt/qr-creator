@@ -37,7 +37,7 @@ export default function Index() {
 
       <main className="mx-auto max-w-lg space-y-4 px-4 py-5">
         {/* Input Section */}
-        <Card>
+        <Card className="shadow-sm">
           <CardContent className="pt-5 space-y-3">
             <QRInputPanel config={config} onChange={handleChange} onReset={handleReset} />
             <QRCustomizePanel config={config} onChange={handleChange} />
@@ -45,7 +45,7 @@ export default function Index() {
         </Card>
 
         {/* Preview */}
-        <Card>
+        <Card className="shadow-sm">
           <CardContent className="flex flex-col items-center py-8">
             <QRPreview config={config} />
           </CardContent>
