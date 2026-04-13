@@ -3,7 +3,8 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { VitePWA } from "vite-plugin-pwa";
 
-export default defineConfig(() => ({
+export default defineConfig(({ command }) => ({
+  base: command === "build" ? "/qr-creator/" : "/",
   server: {
     host: "::",
     port: 8080,
@@ -25,7 +26,7 @@ export default defineConfig(() => ({
         name: "QR Creator",
         short_name: "QR Creator",
         description: "Generate styled, downloadable QR codes for your business",
-        start_url: "/",
+        start_url: ".",
         display: "standalone",
         background_color: "#ffffff",
         theme_color: "#ffffff",
