@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { OpsetteFooterLogo } from '@/components/opsette-share';
 
 export default function About() {
   const navigate = useNavigate();
@@ -44,13 +45,9 @@ export default function About() {
             <p>Everything runs in your browser. Saved QR codes live in your browser's local storage — nothing is sent to any server.</p>
           </section>
 
-          <p className="text-xs text-muted-foreground/70 pt-2">
-            Find more tools at{' '}
-            <a href="https://opsette.io" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground transition-colors">
-              opsette.io
-            </a>.
-          </p>
         </div>
+
+        <OpsetteFooterLogo />
       </main>
     </div>
   );
