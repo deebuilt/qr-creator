@@ -8,6 +8,7 @@ import { QRLibrary } from '@/components/QRLibrary';
 import { useQRLibrary } from '@/hooks/useQRLibrary';
 import { DEFAULT_CONFIG, type QRConfig } from '@/types/qr';
 import { OpsetteHeader } from '@/components/opsette-header';
+import { ThemeToggleButton } from '@/components/ThemeToggleButton';
 const CARD_SHADOW = '0 2px 6px -1px rgba(0,0,0,0.08), 0 1px 2px -1px rgba(0,0,0,0.04)';
 
 export default function Index() {
@@ -29,7 +30,7 @@ export default function Index() {
 
   return (
     <div className="min-h-[100dvh] bg-background">
-      <OpsetteHeader />
+      <OpsetteHeader rightExtra={<ThemeToggleButton />} />
 
       <main className="mx-auto max-w-lg space-y-3 px-4 py-4 pb-8">
         {/* Input Section */}
