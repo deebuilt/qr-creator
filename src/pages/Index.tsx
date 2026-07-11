@@ -5,6 +5,9 @@ import { QRCustomizePanel } from '@/components/QRCustomizePanel';
 import { QRPreview } from '@/components/QRPreview';
 import { QRActions } from '@/components/QRActions';
 import { QRLibrary } from '@/components/QRLibrary';
+import { QRReopenModal } from '@/components/QRReopenModal';
+import { Button } from '@/components/ui/button';
+import { FolderOpen } from 'lucide-react';
 import { useQRLibrary } from '@/hooks/useQRLibrary';
 import { DEFAULT_CONFIG, type QRConfig } from '@/types/qr';
 import { OpsetteHeader } from '@/components/opsette-header';
@@ -14,6 +17,7 @@ const CARD_SHADOW = '0 2px 6px -1px rgba(0,0,0,0.08), 0 1px 2px -1px rgba(0,0,0,
 export default function Index() {
   const navigate = useNavigate();
   const [config, setConfig] = useState<QRConfig>({ ...DEFAULT_CONFIG });
+  const [reopenOpen, setReopenOpen] = useState(false);
   const { library, saveConfig, deleteEntry } = useQRLibrary();
 
   const handleChange = useCallback((updates: Partial<QRConfig>) => {
@@ -32,33 +36,55 @@ export default function Index() {
     <div className="min-h-[100dvh] bg-background">
       <OpsetteHeader rightExtra={<ThemeToggleButton />} />
 
-      <main className="mx-auto max-w-lg space-y-3 px-4 py-4 pb-8">
-        {/* Input Section */}
-        <div
-          className="bg-card rounded-xl p-4 border border-border/60"
-          style={{ boxShadow: CARD_SHADOW }}
-        >
-          <div className="space-y-3">
-            <QRInputPanel config={config} onChange={handleChange} onReset={handleReset} />
-            <QRCustomizePanel config={config} onChange={handleChange} />
+      <main className="mx-auto max-w-4xl px-4 py-4 pb-8">
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 lg:items-start">
+          {/* Controls — left on desktop, second on mobile */}
+          <div
+            className="order-2 lg:order-none bg-card rounded-xl p-4 border border-border/60"
+            style={{ boxShadow: CARD_SHADOW }}
+          >
+            <div className="space-y-3">
+              <QRInputPanel config={config} onChange={handleChange} onReset={handleReset} />
+              <QRCustomizePanel config={config} onChange={handleChange} />
+            </div>
+          </div>
+
+          {/* Preview + actions — right on desktop (sticky), first on mobile */}
+          <div className="order-1 lg:order-none space-y-3 lg:sticky lg:top-4">
+            <div
+              className="bg-card rounded-xl p-6 border border-border/60 overflow-hidden"
+              style={{ boxShadow: CARD_SHADOW }}
+            >
+              <div className="flex flex-col items-center">
+                <QRPreview config={config} />
+              </div>
+            </div>
+
+            <QRActions config={config} onSave={() => saveConfig(config)} />
+
+            <div className="flex justify-center">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs text-muted-foreground hover:text-foreground"
+                onClick={() => setReopenOpen(true)}
+              >
+                <FolderOpen className="mr-1.5 h-3.5 w-3.5" /> Reopen a saved QR
+              </Button>
+            </div>
           </div>
         </div>
 
-        {/* Preview */}
-        <div
-          className="bg-card rounded-xl p-6 border border-border/60 overflow-hidden"
-          style={{ boxShadow: CARD_SHADOW }}
-        >
-          <div className="flex flex-col items-center">
-            <QRPreview config={config} />
-          </div>
+        {/* Library — full width below both columns */}
+        <div className="mt-3">
+          <QRLibrary library={library} onLoad={handleLoad} onDelete={deleteEntry} />
         </div>
 
-        {/* Actions */}
-        <QRActions config={config} onSave={() => saveConfig(config)} />
-
-        {/* Library */}
-        <QRLibrary library={library} onLoad={handleLoad} onDelete={deleteEntry} />
+        <QRReopenModal
+          open={reopenOpen}
+          onOpenChange={setReopenOpen}
+          onReopen={handleLoad}
+        />
 
         <footer className="flex items-center justify-center gap-1.5 py-3">
           <button onClick={() => navigate('/about')} className="text-xs text-muted-foreground hover:text-foreground transition-colors">About</button>

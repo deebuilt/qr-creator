@@ -1,9 +1,7 @@
 import { useEffect, useRef, useCallback } from 'react';
-import QRCodeStyling, {
-  type Options,
-  type DotType,
-} from 'qr-code-styling';
+import QRCodeStyling from 'qr-code-styling';
 import type { QRConfig } from '@/types/qr';
+import { buildOptions } from '@/lib/qr-options';
 import { QrCode, ScanLine } from 'lucide-react';
 
 function isValidUrl(str: string): boolean {
@@ -15,75 +13,16 @@ function isValidUrl(str: string): boolean {
   }
 }
 
-function buildOptions(config: QRConfig): Options {
-  const dotType: DotType =
-    config.preset === 'classic' ? 'square' : 'rounded';
-
-  const opts: Options = {
-    width: 280,
-    height: 280,
-    data: config.url || 'https://placeholder.test',
-    dotsOptions: {
-      color: config.fgColor,
-      type: dotType,
-    },
-    backgroundOptions: {
-      color: config.bgColor,
-    },
-    cornersSquareOptions: {
-      type: config.preset === 'classic' ? 'square' : 'extra-rounded',
-    },
-    cornersDotOptions: {
-      type: config.preset === 'classic' ? 'square' : 'dot',
-    },
-    qrOptions: {
-      errorCorrectionLevel: 'H',
-    },
-    margin: config.includeBorder ? 16 : 0,
-  };
-
-  if (config.preset === 'branded') {
-    opts.dotsOptions = {
-      type: 'rounded',
-      gradient: {
-        type: 'linear',
-        rotation: Math.PI / 4,
-        colorStops: [
-          { offset: 0, color: config.fgColor },
-          { offset: 1, color: adjustBrightness(config.fgColor, 40) },
-        ],
-      },
-    };
-  }
-
-  if (config.logoDataUrl) {
-    opts.image = config.logoDataUrl;
-    opts.imageOptions = {
-      crossOrigin: 'anonymous',
-      margin: 4,
-      imageSize: 0.3,
-    };
-  }
-
-  return opts;
-}
-
-function adjustBrightness(hex: string, amount: number): string {
-  const num = parseInt(hex.replace('#', ''), 16);
-  const r = Math.min(255, ((num >> 16) & 0xff) + amount);
-  const g = Math.min(255, ((num >> 8) & 0xff) + amount);
-  const b = Math.min(255, (num & 0xff) + amount);
-  return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
-}
-
 interface Props {
   config: QRConfig;
 }
 
-let qrInstance: QRCodeStyling | null = null;
-
 export function QRPreview({ config }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
+  // Per-instance (not a module singleton) so the QR is always appended to THIS
+  // component's live container — a module-level instance kept drawing into a
+  // detached node after the layout remounted the preview.
+  const qrRef = useRef<QRCodeStyling | null>(null);
   const validUrl = isValidUrl(config.url);
 
   useEffect(() => {
@@ -91,14 +30,20 @@ export function QRPreview({ config }: Props) {
 
     const opts = buildOptions(config);
 
-    if (!qrInstance) {
-      qrInstance = new QRCodeStyling(opts);
+    if (!qrRef.current) {
+      qrRef.current = new QRCodeStyling(opts);
       containerRef.current.innerHTML = '';
-      qrInstance.append(containerRef.current);
+      qrRef.current.append(containerRef.current);
     } else {
-      qrInstance.update(opts);
+      qrRef.current.update(opts);
     }
   }, [config, validUrl]);
+
+  // If the URL becomes invalid we unmount the QR node below; drop the instance
+  // so a later valid URL re-appends cleanly into the fresh container.
+  useEffect(() => {
+    if (!validUrl) qrRef.current = null;
+  }, [validUrl]);
 
   const getDownloadInstance = useCallback(() => {
     const opts = buildOptions(config);
@@ -130,7 +75,7 @@ export function QRPreview({ config }: Props) {
 
   if (!validUrl) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-border p-10 text-center min-h-[280px] bg-muted/40">
+      <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-border p-10 text-center min-h-[280px] w-full bg-muted/40">
         <QrCode className="h-10 w-10 text-muted-foreground/40 mb-3" />
         <p className="text-sm text-muted-foreground">
           Enter a URL to generate your QR code
