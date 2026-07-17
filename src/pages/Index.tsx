@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { QRInputPanel } from '@/components/QRInputPanel';
 import { QRCustomizePanel } from '@/components/QRCustomizePanel';
@@ -12,11 +12,24 @@ import { useQRLibrary } from '@/hooks/useQRLibrary';
 import { DEFAULT_CONFIG, type QRConfig } from '@/types/qr';
 import { OpsetteHeader } from '@/components/opsette-header';
 import { ThemeToggleButton } from '@/components/ThemeToggleButton';
+import { readSeedFromUrl, clearLinkParams } from '@/lib/opsette-kit-link';
+import { initialConfigFromSeed } from '@/lib/seed';
 const CARD_SHADOW = '0 2px 6px -1px rgba(0,0,0,0.08), 0 1px 2px -1px rgba(0,0,0,0.04)';
 
 export default function Index() {
   const navigate = useNavigate();
-  const [config, setConfig] = useState<QRConfig>({ ...DEFAULT_CONFIG });
+  // Lazy init so a ?seed= brand core (Mechanism 1) is applied on the very first
+  // render — the QR opens already in the client's brand color, no flash of the
+  // black-on-white default. No seed → plain DEFAULT_CONFIG, unchanged.
+  const [config, setConfig] = useState<QRConfig>(() =>
+    initialConfigFromSeed(readSeedFromUrl()),
+  );
+
+  // Strip the seed param from the address bar after it's consumed, so a refresh
+  // or a shared URL doesn't re-seed over work in progress.
+  useEffect(() => {
+    clearLinkParams();
+  }, []);
   const [reopenOpen, setReopenOpen] = useState(false);
   const { library, saveConfig, deleteEntry } = useQRLibrary();
 
